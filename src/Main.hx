@@ -1,49 +1,93 @@
-import h3d.scene.Mesh;
-import h3d.prim.Cube;
+import hxd.poly2tri.Point;
+using Extensions;
 
 class Main extends hxd.App 
 {
-    var builder : Builder;
-    var callbacks : Map<CallbackGroup, List<CallbackKind -> Void>>;
+    var callbacks : List<CallbackKind -> Int>;
+
+    var box : h3d.scene.Box;
+    var otherBox : h3d.scene.Box;
 
     override function init() 
     {
-        builder = new Builder();
-        callbacks = new Map<CallbackGroup, List<CallbackKind -> Void>>();
+        callbacks = new List<CallbackKind -> Int>();
 
-        buildLevel(100, 100);
+        buildLevel(100, 100, 2.0);
+        
         s3d.camera.pos = new h3d.Vector(0, 50, 75);
         s3d.camera.target = new h3d.Vector(0, 0, 0);
+
+        var size = 4.0;
+        var extents = new h3d.Vector(16 * size, 9 * size);
+        s3d.camera.orthoBounds = h3d.col.Bounds.fromValues(-extents.x * 0.5, -extents.y * 0.5, 0, extents.x, extents.y, 250);
+
+        new h3d.scene.CameraController(s3d).loadFromCamera();
     }
     override function update(dt : Float)
     {
-        call(CallbackGroup.Core, CallbackKind.OnUpdate(dt));
+        call(CallbackKind.OnUpdate(dt), dfltCodes);
     }
 
-    private function buildLevel(width : Int, length : Int)
+    private function buildLevel(width : Int, length : Int, size : Float)
     {
-        var plane = new h3d.prim.Grid(width, length, 10, 10);
+        var plane = new h3d.prim.Grid(width, length, size, size);
         plane.addNormals();
         plane.addUVs();
         
-        plane.uvScale(width, length);
-        plane.translate(-width * 5, -length * 5, 0.0);
+        plane.uvScale(width * 0.5, length * 0.5);
+        plane.translate(-width * size * 0.5, -length * size * 0.5, 0.0);
 
         var tex = hxd.Res.checker.toTexture();
         tex.wrap = h3d.mat.Data.Wrap.Repeat;
         var mat = h3d.mat.Material.create(tex);
 
         var ground = new h3d.scene.Mesh(plane, mat, s3d);
-        var player = new Player(0, 0);
+        ground.setPosition(0, 0, 0);
 
+        var player = new Player(0, 0);
         s3d.addChild(player);
 
-        placeBlocks();
+        var offset = placeBlocks(size);
+        ground.setPosition(ground.x + offset.x, ground.y + offset.y, 0);
+
         setupLighting();
     }
-    private function placeBlocks()
+    private function placeBlocks(size : Float)
     {
-        builder.parse(hxd.Res.arena_01.entry.getText());
+        var source: Array<h3d.scene.Object> = 
+        [
+            hxd.Res.wall.toObj(0xFFC266)
+        ];
+
+        var halfSize = size * 0.5;
+
+        var data:TiledMapData = haxe.Json.parse(hxd.Res.arena_01.entry.getText());
+        var start = new h3d.Vector(-(data.width * size) * 0.5, -(data.height * size) * 0.5);
+        start.x += halfSize;
+        start.y += halfSize;
+
+        for (i in 0...data.layers.length)
+        {
+            for(j in 0...data.layers[i].data.length)
+            {
+                var type = data.layers[i].data[j];
+                if (type == 0) continue;
+
+                var x = Std.int(j % data.width);
+                var y = Std.int(j / data.width);
+
+                var instance = source[type - 1].clone();
+                instance.setPosition(start.x + x * size, start.y + y * size, 0);
+
+                var box = new h3d.scene.Box(0x00FF00, h3d.col.Bounds.fromValues(-halfSize, -halfSize, 0, size, size, size));
+                box.thickness = 4.0;
+                instance.addChild(box);
+
+                s3d.addChild(instance);
+            }
+        }
+
+        return new h3d.Vector((data.width % 2) * halfSize, (data.height % 2) * halfSize);
     }
     private function setupLighting()
     {
@@ -53,46 +97,41 @@ class Main extends hxd.App
         s3d.lightSystem.ambientLight.set(0.3, 0.3, 0.3);
     }
 
-    public function subscribeTo(group : CallbackGroup, delegate : CallbackKind -> Void)
+    public function subscribeTo(delegate : CallbackKind -> Int)
     {
-        if (!callbacks.exists(group))
+        callbacks.add(delegate);
+    }
+    public function unsubscribeFrom(delegate : CallbackKind -> Int)
+    {
+        callbacks.remove(delegate);
+    }
+    public function call(kind : CallbackKind, breakCodes : Array<Int>)
+    {
+        for (delegate in callbacks) 
         {
-            var list = new List<CallbackKind -> Void>();
-            list.add(delegate);
-
-            callbacks.set(group, list);
-            return;
+            var breakCode = delegate(kind);
+            if (breakCodes.contains(breakCode)) return true;
         }
 
-        callbacks.get(group).add(delegate);
-    }
-    public function unsubscribeFrom(group : CallbackGroup, delegate : CallbackKind -> Void)
-    {
-        if (!callbacks.exists(group)) return;
-        callbacks.get(group).remove(delegate);
-    }
-
-    public function call(group : CallbackGroup, kind : CallbackKind)
-    {
-        if (!callbacks.exists(group)) return;
-        for (delegate in callbacks.get(group)) delegate(kind);
+        return false;
     }
 
     public static var relay : Main;
+    public static var dfltCodes(default, null) : Array<Int>;
 
     static function main() 
     {
         hxd.Res.initEmbed();
+
+        dfltCodes = [-1];
         relay = new Main();
     }
 }
 
-enum CallbackGroup
-{
-    Core;
-    Player;
-}
 enum CallbackKind 
 {
     OnUpdate(dt : Float);
+    OnPlayerMoveIntent(bounds : h3d.col.Bounds);
 }
+
+typedef TiledMapData = { layers:Array<{ data:Array<Int> }>, width:Int, height:Int };

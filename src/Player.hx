@@ -1,4 +1,3 @@
-import Main.CallbackGroup;
 import Main.CallbackKind;
 
 class Player extends h3d.scene.Object
@@ -24,7 +23,7 @@ class Player extends h3d.scene.Object
     private function setupGraph()
     {
         var cache = new h3d.prim.ModelCache();
-        graph = cache.loadModel(hxd.Res.Tank);
+        graph = cache.loadModel(hxd.Res.tank);
 
         graph.rotate(0, 0, 90 * (Math.PI / 180));
         turret = graph.getMeshByName("Turret");
@@ -45,7 +44,7 @@ class Player extends h3d.scene.Object
     }
     private function setupDelegates()
     {
-        Main.relay.subscribeTo(CallbackGroup.Core, onCoreCallback);
+        Main.relay.subscribeTo(onCallback);
         hxd.Window.getInstance().addEventTarget(onEvent);
     }
 
@@ -78,13 +77,15 @@ class Player extends h3d.scene.Object
         turret.setRotationQuat(quat);
     }
 
-    function onCoreCallback(kind : CallbackKind)
+    function onCallback(kind : CallbackKind)
     {
         switch(kind)
         {
             case OnUpdate(dt): onUpdate(dt);
             case _:
         }
+
+        return 0;
     }
     function onUpdate(dt : Float)
     {
