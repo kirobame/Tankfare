@@ -31,6 +31,12 @@ class Main extends hxd.App
         var playerTank = new Tank(5, 1.5, 1.5, hxd.Res.tank_palette_red.toTexture());
         var player = new Player(playerTank);
         s3d.addChild(playerTank);
+
+        var cache = new h3d.prim.ModelCache();
+        var bullet = cache.loadModel(hxd.Res.bullet);
+        bullet.setPosition(1, 0, 1.575);
+        bullet.rotate(0, 0, 90 * (Math.PI / 180));
+        s3d.addChild(bullet);
         
         setupCamera();
         setupLighting();
@@ -100,7 +106,7 @@ class Main extends hxd.App
 
         var size = 4.0;
         var extents = new h3d.Vector(16 * size, 9 * size);
-        s3d.camera.orthoBounds = h3d.col.Bounds.fromValues(-extents.x * 0.5, -extents.y * 0.5, 0, extents.x, extents.y, 250);
+        //s3d.camera.orthoBounds = h3d.col.Bounds.fromValues(-extents.x * 0.5, -extents.y * 0.5, 0, extents.x, extents.y, 250);
 
         new h3d.scene.CameraController(s3d).loadFromCamera();
     }

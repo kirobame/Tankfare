@@ -2,8 +2,8 @@ class Tank extends h3d.scene.Object
 {
     public var lookHeight(default, null) : Float;
 
-    var graph : h3d.scene.Object;
-    var turret : h3d.scene.Mesh;
+    public var graphs(default, null) : h3d.scene.Object;
+    public var turret(default, null) : h3d.scene.Mesh;
 
     var movSpeed : Float;
     var turnSpeed : Float;
@@ -27,19 +27,19 @@ class Tank extends h3d.scene.Object
     private function setupGraphs(texture : h3d.mat.Texture)
     {
         var cache = new h3d.prim.ModelCache();
-        graph = cache.loadModel(hxd.Res.tank);
+        graphs = cache.loadModel(hxd.Res.tank);
 
-        for (mesh in graph.getMeshes()) mesh.material.texture = texture;
+        for (mesh in graphs.getMeshes()) mesh.material.texture = texture;
 
-        graph.rotate(0, 0, 90 * (Math.PI / 180));
-        turret = graph.getMeshByName("Turret");
+        graphs.rotate(0, 0, 90 * (Math.PI / 180));
+        turret = graphs.getMeshByName("Turret");
 
-        addChild(graph);
+        addChild(graphs);
         cache.dispose();
     }
     private function setupCollision()
     {
-        var bounds = graph.getMeshByName("Base").getBounds(new h3d.col.Bounds());
+        var bounds = graphs.getMeshByName("Base").getBounds(new h3d.col.Bounds());
         var prim = new h3d.prim.Cube(bounds.xSize, bounds.ySize, bounds.zSize, false);
         prim.translate(-bounds.xSize * 0.5, -bounds.ySize * 0.5, 0);
         prim.addNormals();
