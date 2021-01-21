@@ -2,7 +2,7 @@ package mng;
 
 class Pool<T>
 {
-    var template : h3d.scene.Object;
+    var template : Observable;
     var queue : List<Poolable<T>>;
 
     public function new (template : T, initialSize : Int)
@@ -51,7 +51,7 @@ class Pool<T>
 
     private function stockFromTemplate()
     {
-        var instance = template.clone();
+        var instance : Observable = cast template.clone();
         var poolable = new Poolable<T>(this, instance);
 
         queue.add(poolable);

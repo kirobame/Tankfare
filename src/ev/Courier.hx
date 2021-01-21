@@ -64,16 +64,22 @@ class Courier
 enum CallbackKind
 {
     OnUpdate;
+
     OnTankTransformIntent;
+    OnBulletTransformIntent;
 }
 enum CallbackArgs
 {
     FloatArgs(val : Float);
+
     BoundArgs(bounds : h3d.col.Bounds);
     ColliderArgs(collider : h3d.col.Collider);
+    RayArgs(ray : h3d.col.Ray, len : Float);
 }
 enum ListenerOutput
 {
     Empty;
     Break;
+
+    Reflect(point : h3d.Vector, norm : h3d.Vector);
 }

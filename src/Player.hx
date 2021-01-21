@@ -26,6 +26,7 @@ class Player extends h3d.scene.Object
         switch(args)
         {
             case ev.Courier.CallbackArgs.FloatArgs(dt):
+
                 var hasTransformChanged = false;
 
                 var turnIntent = 0.0;
@@ -66,6 +67,8 @@ class Player extends h3d.scene.Object
 
                 tank.setLookingPoint(lPoint.x, lPoint.y);
                 tank.look();
+            
+            case ERelease: tank.fire(0);
 
             case _:
         }

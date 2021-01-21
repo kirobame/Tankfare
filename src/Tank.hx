@@ -23,6 +23,8 @@ class Tank extends h3d.scene.Object
 
         setupGraphs(texture);
         setupCollision();
+
+        ev.Courier.open(ev.Courier.CallbackKind.OnTankTransformIntent);
     }
     private function setupGraphs(texture : h3d.mat.Texture)
     {
@@ -53,6 +55,21 @@ class Tank extends h3d.scene.Object
         addChild(box);
     }
     
+    public function fire(bulletType : Int)
+    {
+        var poolable = mng.PoolHub.getBulletPool(bulletType).take();
+        var dir = new h3d.Vector(lPoint.x - x, lPoint.y - y);
+        dir.normalize();
+
+        dir.x *= 1.0;
+        dir.y *= 1.0;
+
+        Main.relay.s3d.addChild(poolable);
+
+        var bullet = poolable.getValue();
+        bullet.setPosition(x + dir.x, y + dir.y, lookHeight);
+        bullet.launch(dir);
+    }
     public function setLookingPoint(x : Float, y : Float)
     {
         lPoint.x = x;
@@ -62,7 +79,7 @@ class Tank extends h3d.scene.Object
 
     public function move(movIntent : Float, dt : Float)
     {
-        var direction = qRot.getDirection();
+        var direction = getDirection();
             
         movIntent *= dt * movSpeed;
         direction.x *= movIntent;

@@ -2,8 +2,6 @@ using Extensions;
 
 class Main extends hxd.App 
 {
-    var obstaclePools : Array<mng.Pool<Obstacle>>;
-
     var mapIndex : Int;
     var maps : Array<hxd.res.Resource>;
 
@@ -11,12 +9,7 @@ class Main extends hxd.App
     var ground : h3d.scene.Mesh;
 
     override function init() 
-    {
-        obstaclePools =
-        [
-            new mng.Pool<Obstacle>(new Obstacle(hxd.Res.wall.toObj(0xFFC266)), 50)
-        ];
-             
+    {   
         mapIndex = -1;
         maps =
         [
@@ -28,18 +21,14 @@ class Main extends hxd.App
 
         buildNextLevel();
 
-        var playerTank = new Tank(5, 1.5, 1.5, hxd.Res.tank_palette_red.toTexture());
+        var playerTank = new Tank(5, 1.5, 1.575, hxd.Res.tank_palette_red.toTexture());
         var player = new Player(playerTank);
         s3d.addChild(playerTank);
-
-        var cache = new h3d.prim.ModelCache();
-        var bullet = cache.loadModel(hxd.Res.bullet);
-        bullet.setPosition(1, 0, 1.575);
-        bullet.rotate(0, 0, 90 * (Math.PI / 180));
-        s3d.addChild(bullet);
         
         setupCamera();
         setupLighting();
+
+        ev.Courier.open(ev.Courier.CallbackKind.OnUpdate);
     }
     override function update(dt : Float)
     {
@@ -89,10 +78,13 @@ class Main extends hxd.App
                 var x = Std.int(j % data.width);
                 var y = Std.int(j / data.width);
 
-                var instance = obstaclePools[type - 1].take();
-                instance.getValue().setPosition(start.x + x * tileSize, start.y + y * tileSize, 0);
+                var poolable = mng.PoolHub.getObstaclePool(type - 1).take();
+                var obstacle = poolable.getValue();
 
-                s3d.addChild(instance);
+                obstacle.setPosition(start.x + x * tileSize, start.y + y * tileSize, 0);
+                obstacle.init();
+
+                s3d.addChild(poolable);
             }
         }
 
@@ -106,9 +98,9 @@ class Main extends hxd.App
 
         var size = 4.0;
         var extents = new h3d.Vector(16 * size, 9 * size);
-        //s3d.camera.orthoBounds = h3d.col.Bounds.fromValues(-extents.x * 0.5, -extents.y * 0.5, 0, extents.x, extents.y, 250);
+        s3d.camera.orthoBounds = h3d.col.Bounds.fromValues(-extents.x * 0.5, -extents.y * 0.5, 0, extents.x, extents.y, 250);
 
-        new h3d.scene.CameraController(s3d).loadFromCamera();
+        //new h3d.scene.CameraController(s3d).loadFromCamera();
     }
     private function setupLighting()
     {
@@ -123,7 +115,9 @@ class Main extends hxd.App
     static function main() 
     {
         hxd.Res.initEmbed();
+
         ev.Courier.init();
+        mng.PoolHub.init();
 
         relay = new Main();
     }
