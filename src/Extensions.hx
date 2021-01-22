@@ -55,6 +55,11 @@ class Extensions
         return ray;
     }
 
+    static public function toRadians(angle : Float)
+    {
+        return angle * (Math.PI / 180);
+    }
+
     static public function refreshColor(box : h3d.scene.Box, color : Int)
     {
         box.clear();

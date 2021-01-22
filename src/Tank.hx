@@ -1,3 +1,6 @@
+import haxe.ds.Vector;
+using Extensions;
+
 class Tank extends h3d.scene.Object
 {
     public var lookHeight(default, null) : Float;
@@ -11,6 +14,8 @@ class Tank extends h3d.scene.Object
 
     var box : h3d.scene.Mesh;
 
+    var trCtd : Float;
+
     public function new(movSpeed : Float, turnSpeed : Float, lookHeight : Float, texture : h3d.mat.Texture)
     {
         super();
@@ -20,6 +25,8 @@ class Tank extends h3d.scene.Object
 
         this.lookHeight = lookHeight;
         lPoint = new h3d.col.Point(x + 10, y, lookHeight);
+
+        trCtd = 0.15;
 
         setupGraphs(texture);
         setupCollision();
@@ -33,7 +40,7 @@ class Tank extends h3d.scene.Object
 
         for (mesh in graphs.getMeshes()) mesh.material.texture = texture;
 
-        graphs.rotate(0, 0, 90 * (Math.PI / 180));
+        graphs.rotate(0, 0, 90.toRadians());
         turret = graphs.getMeshByName("Turret");
 
         addChild(graphs);
@@ -92,6 +99,21 @@ class Tank extends h3d.scene.Object
             return false;
         }
         
+        trCtd -= dt;
+        if (trCtd <= 0)
+        {
+            trCtd = 0.15;
+
+            var poolable = mng.PoolHub.getDecalPool(0).take();
+            var decal = poolable.getValue();
+
+            direction.normalize();
+            decal.setDirection(direction);
+
+            decal.setPosition(x, y, 0.0025);
+            Main.relay.s3d.addChild(poolable);
+        }
+
         return true;
     }
     public function turn(turnIntent : Float, dt : Float)

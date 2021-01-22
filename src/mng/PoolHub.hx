@@ -6,6 +6,7 @@ class PoolHub
 {
     static var obstaclePools : Array<Pool<Obstacle>>;
     static var bulletPools : Array<Pool<Bullet>>;
+    static var decalPools : Array<Pool<Decal>>;
 
     static public function init()
     {
@@ -16,10 +17,16 @@ class PoolHub
 
         bulletPools = 
         [
-            new Pool<Bullet>(new Bullet(hxd.Res.bullet.toObj(0xDB8E4F), 10, 2), 10)
+            new Pool<Bullet>(new Bullet(hxd.Res.bullet.toObj(0xDB8E4F), 10.0, 2), 10)
+        ];
+
+        decalPools = 
+        [
+            new Pool<Decal>(new Decal(2.0, hxd.Res.tank_tracks.toTexture()), 25)
         ];
     }
 
     static public function getObstaclePool(index : Int) { return obstaclePools[index]; }
     static public function getBulletPool(index : Int) { return bulletPools[index]; }
+    static public function getDecalPool(index : Int) { return decalPools[index]; }
 }
