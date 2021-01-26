@@ -1,5 +1,5 @@
-import h3d.parts.Particles;
-import h3d.parts.GpuParticles;
+import h3d.shader.KillAlpha;
+import h3d.shader.UVScroll;
 using Extensions;
 
 class Bullet extends Observable
@@ -27,7 +27,6 @@ class Bullet extends Observable
         graphs.setPosition(0, 0, 0);
 
         vfx = new h3d.parts.GpuParticles(this);
-        vfx.material.mainPass.setBlendMode(h3d.mat.BlendMode.Alpha);
 
         var duration = 1.0;
         var count = 10;
@@ -35,7 +34,7 @@ class Bullet extends Observable
         {
             var group = new h3d.parts.GpuParticles.GpuPartGroup(vfx);
 
-            group.emitMode = h3d.parts.GpuEmitMode.Cone;
+            group.emitMode = h3d.parts.GpuParticles.GpuEmitMode.Disc;
             group.emitAngle = 0;
             group.emitDist = 0;
             group.emitSync = 1.0;
@@ -85,7 +84,7 @@ class Bullet extends Observable
 
                 if (rTimer > 0)
                 {
-                    if (rTimer > 2)
+                    if (rTimer > 0.75)
                     {
                         sendCallback(Observable.ObjectCallbackKind.OnBinned);
                         ev.Courier.unsubscribeFrom(ev.Courier.CallbackKind.OnUpdate, onUpdate);
