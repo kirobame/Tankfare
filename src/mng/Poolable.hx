@@ -24,16 +24,16 @@ class Poolable<T> extends h3d.scene.Object
         return castedValue;
     }
 
-    public function init()
+    public function start()
     {
         setActive(true);
     }
     public function end()
     {
-        remove();
-
         setActive(false);
         source.stock(this);
+
+        remove();
     }
 
     private function setActive(state : Bool)

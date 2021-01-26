@@ -34,43 +34,43 @@ class Obstacle extends Observable
         return ev.Courier.ListenerOutput.Empty;
     }
     function onBulletMoveIntent(args : ev.Courier.CallbackArgs)
+    {
+        switch(args)
         {
-            switch(args)
-            {
-                case ev.Courier.CallbackArgs.RayArgs(ray, len):
+            case ev.Courier.CallbackArgs.RayArgs(ray, len):
 
-                    var bounds = getBounds(new h3d.col.Bounds());
-                    var dist = bounds.rayIntersection(ray, true);
+                var bounds = getBounds(new h3d.col.Bounds());
+                var dist = bounds.rayIntersection(ray, true);
 
-                    if (dist > 0 && dist < len)
+                if (dist > 0 && dist < len)
+                {
+                    var dir = ray.getDir();
+                    dir.normalize();
+
+                    dir.x *= dist;
+                    dir.y *= dist;
+
+                    var point = new h3d.Vector(ray.px + dir.x, ray.py + dir.y, ray.pz);
+                    
+                    if (point.x > bounds.xMin && point.x < bounds.xMax)
                     {
-                        var dir = ray.getDir();
-                        dir.normalize();
-
-                        dir.x *= dist;
-                        dir.y *= dist;
-
-                        var point = new h3d.Vector(ray.px + dir.x, ray.py + dir.y, ray.pz);
-                        
-                        if (point.x > bounds.xMin && point.x < bounds.xMax)
-                        {
-                            if (point.y < bounds.yMin) return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(0, -1));
-                            else return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(0, 1));
-                        }
-                        else if (point.x < bounds.xMin) return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(-1, 0));
-                        else return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(1, 0));
+                        if (point.y < bounds.yMin) return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(0, -1));
+                        else return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(0, 1));
                     }
-    
-                case _:
-            }
-    
-            return ev.Courier.ListenerOutput.Empty;
+                    else if (point.x < bounds.xMin) return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(-1, 0));
+                    else return ev.Courier.ListenerOutput.Reflect(point, new h3d.Vector(1, 0));
+                }
+
+            case _:
         }
+
+        return ev.Courier.ListenerOutput.Empty;
+    }
 
     override function clone(?o:h3d.scene.Object):h3d.scene.Object 
     {
         if (o == null) o = new Obstacle(graphs.clone());
-        super.clone(o);
+        o.name = "Obstacle";
 
         return o;
     }

@@ -32,41 +32,6 @@ class Main extends hxd.App
         setupLighting();
 
         ev.Courier.open(ev.Courier.CallbackKind.OnUpdate);
-
-        var parts = new h3d.parts.GpuParticles(s3d);
-        var g = new h3d.parts.GpuParticles.GpuPartGroup(parts);
-
-        g.emitMode = h3d.parts.GpuParticles.GpuEmitMode.Cone;
-        g.emitAngle = 0.5;
-        g.emitDist = 0;
-
-        g.fadeIn = 0;
-        g.fadeOut = 0;
-        g.fadePower = 0;
-        g.gravity = 0;
-        g.size = 7.5;
-        g.sizeRand = 0.5;
-
-        g.rotSpeed = 1;
-
-        g.speed = 2;
-        g.speedRand = 0.5;
-
-        g.life = 5;
-        g.lifeRand = 0.5;
-        g.nparts = 100;
-     
-        g.animationRepeat = 10;
-        g.frameCount = 4;
-        g.frameDivisionX = 2;
-        g.frameDivisionY = 2;
-
-        g.sortMode = h3d.parts.GpuParticles.GpuSortMode.Dynamic;
-        g.texture = hxd.Res.decal.toTexture();
-
-        parts.addGroup(g);
-        parts.setPosition(-2.5, 0, 2.5);
-        parts.rotate(90.toRadians(), 0, 0);
     }
     override function update(dt : Float)
     {
@@ -136,9 +101,9 @@ class Main extends hxd.App
 
         var size = 4.0;
         var extents = new h3d.Vector(16 * size, 9 * size);
-        //s3d.camera.orthoBounds = h3d.col.Bounds.fromValues(-extents.x * 0.5, -extents.y * 0.5, 0, extents.x, extents.y, 250);
+        s3d.camera.orthoBounds = h3d.col.Bounds.fromValues(-extents.x * 0.5, -extents.y * 0.5, 0, extents.x, extents.y, 250);
 
-        new h3d.scene.CameraController(s3d).loadFromCamera();
+        //new h3d.scene.CameraController(s3d).loadFromCamera();
     }
     private function setupLighting()
     {

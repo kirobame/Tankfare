@@ -22,7 +22,7 @@ class Pool<T>
         if (queue.length == 0) stockFromTemplate();
 
         var poolable = queue.pop();
-        poolable.init();
+        poolable.start();
 
         return poolable;
     }
@@ -37,7 +37,7 @@ class Pool<T>
         for (i in 0...amount) 
         {
             var poolable = queue.pop();
-            poolable.init();
+            poolable.start();
 
             results[i] = poolable;
         }

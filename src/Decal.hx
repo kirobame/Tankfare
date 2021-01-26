@@ -52,7 +52,7 @@ class Decal extends Observable
     override function clone(?o:h3d.scene.Object):h3d.scene.Object 
     {
         if (o == null) o = new Decal(size, tex);
-        super.clone(o);
+        o.name = "Decal";
 
         return o;
     }
